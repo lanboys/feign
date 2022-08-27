@@ -14,14 +14,14 @@
 package feign;
 
 import com.google.gson.reflect.TypeToken;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Rule;
 import org.junit.Test;
-import java.lang.reflect.Type;
-import java.util.List;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
+import java.lang.reflect.Type;
+import java.util.List;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import static feign.assertj.MockWebServerAssertions.assertThat;
 
 public class BaseApiTest {
@@ -64,16 +64,18 @@ public class BaseApiTest {
 
     String baseUrl = server.url("/default").toString();
 
-    Feign.builder()
-        .decoder(new Decoder() {
-          @Override
-          public Object decode(Response response, Type type) {
-            assertThat(type)
-                .isEqualTo(new TypeToken<Entity<String, Long>>() {}.getType());
-            return null;
-          }
-        })
-        .target(MyApi.class, baseUrl).get("foo");
+    // 通过动态代理构建 api 子类，实现调用方法就发送 http 请求，类似 retrofit
+    MyApi myApi = Feign.builder()
+                        .decoder(new Decoder() {
+                          @Override
+                          public Object decode(Response response, Type type) {
+                            assertThat(type)
+                                .isEqualTo(new TypeToken<Entity<String, Long>>() {}.getType());
+                            return null;
+                          }
+                        })
+                        .target(MyApi.class, baseUrl);
+    myApi.get("foo");
 
     assertThat(server.takeRequest()).hasPath("/default/api/foo");
   }
