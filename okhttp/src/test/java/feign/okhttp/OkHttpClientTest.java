@@ -13,21 +13,21 @@
  */
 package feign.okhttp;
 
+import org.assertj.core.data.MapEntry;
+import org.junit.Test;
+import feign.Feign;
 import feign.Feign.Builder;
 import feign.Headers;
+import feign.Request;
 import feign.RequestLine;
 import feign.Response;
-import feign.Request;
 import feign.Util;
 import feign.assertj.MockWebServerAssertions;
 import feign.client.AbstractClientTest;
-import feign.Feign;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.MockResponse;
-import org.assertj.core.data.MapEntry;
-import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 /** Tests client-specific behavior, such as ensuring Content-Length is sent when specified. */
@@ -41,8 +41,8 @@ public class OkHttpClientTest extends AbstractClientTest {
 
   @Test
   public void testContentTypeWithoutCharset() throws Exception {
-    server.enqueue(new MockResponse()
-        .setBody("AAAAAAAA"));
+    server.enqueue(new MockResponse().setBody("AAAAAAAA"));
+
     OkHttpClientTestInterface api = newBuilder()
         .target(OkHttpClientTestInterface.class, "http://localhost:" + server.getPort());
 

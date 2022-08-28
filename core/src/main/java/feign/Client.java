@@ -13,15 +13,9 @@
  */
 package feign;
 
-import static feign.Util.CONTENT_ENCODING;
-import static feign.Util.CONTENT_LENGTH;
-import static feign.Util.ENCODING_DEFLATE;
-import static feign.Util.ENCODING_GZIP;
-import static feign.Util.checkArgument;
-import static feign.Util.checkNotNull;
-import static feign.Util.isNotBlank;
-import static java.lang.String.CASE_INSENSITIVE_ORDER;
-import static java.lang.String.format;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocketFactory;
 import feign.Request.Options;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,9 +33,15 @@ import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.InflaterInputStream;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSocketFactory;
+import static feign.Util.CONTENT_ENCODING;
+import static feign.Util.CONTENT_LENGTH;
+import static feign.Util.ENCODING_DEFLATE;
+import static feign.Util.ENCODING_GZIP;
+import static feign.Util.checkArgument;
+import static feign.Util.checkNotNull;
+import static feign.Util.isNotBlank;
+import static java.lang.String.CASE_INSENSITIVE_ORDER;
+import static java.lang.String.format;
 
 /**
  * Submits HTTP {@link Request requests}. Implementations are expected to be thread-safe.
@@ -58,6 +58,7 @@ public interface Client {
    */
   Response execute(Request request, Options options) throws IOException;
 
+  // 默认的 http 请求客户端
   class Default implements Client {
 
     private final SSLSocketFactory sslContextFactory;
