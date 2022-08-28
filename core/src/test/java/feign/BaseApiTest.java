@@ -18,7 +18,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
+import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.List;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -66,15 +68,32 @@ public class BaseApiTest {
 
     // 通过动态代理构建 api 子类，实现调用方法就发送 http 请求，类似 retrofit
     MyApi myApi = Feign.builder()
-                        .decoder(new Decoder() {
-                          @Override
-                          public Object decode(Response response, Type type) {
-                            assertThat(type)
-                                .isEqualTo(new TypeToken<Entity<String, Long>>() {}.getType());
-                            return null;
-                          }
-                        })
-                        .target(MyApi.class, baseUrl);
+                       // 定义日志
+                       .logger(new Logger.ErrorLogger())
+                       .logLevel(Logger.Level.FULL)
+                       .requestInterceptors(Collections.singletonList(new RequestInterceptor() {
+                         @Override
+                         public void apply(RequestTemplate template) {
+                           System.out.println("apply(): ");
+                         }
+                       }))
+                       .responseInterceptor(new ResponseInterceptor() {
+
+                         @Override
+                         public Object aroundDecode(InvocationContext invocationContext) throws IOException {
+                           System.out.println("aroundDecode(): ");
+                           return invocationContext.proceed();
+                         }
+                       })
+                       .decoder(new Decoder() {
+                         @Override
+                         public Object decode(Response response, Type type) {
+                           Type expected = new TypeToken<Entity<String, Long>>() {}.getType();
+                           assertThat(type).isEqualTo(expected);
+                           return null;
+                         }
+                       })
+                       .target(MyApi.class, baseUrl);
     myApi.get("foo");
 
     assertThat(server.takeRequest()).hasPath("/default/api/foo");

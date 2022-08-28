@@ -137,7 +137,7 @@ final class SynchronousMethodHandler implements MethodHandler {
       return responseInterceptor
           .aroundDecode(new InvocationContext(decoder, metadata.returnType(), response));
     }
-
+    // 异步响应处理器，怎么使用？
     CompletableFuture<Object> resultFuture = new CompletableFuture<>();
     asyncResponseHandler.handleResponse(resultFuture, metadata.configKey(), response,
         metadata.returnType(), elapsedTime);
@@ -159,6 +159,7 @@ final class SynchronousMethodHandler implements MethodHandler {
   }
 
   Request targetRequest(RequestTemplate template) {
+    // 请求拦截器 执行入口
     for (RequestInterceptor interceptor : requestInterceptors) {
       interceptor.apply(template);
     }
